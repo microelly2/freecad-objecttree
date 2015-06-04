@@ -7,6 +7,10 @@
 #-- GNU Lesser General Public License (LGPL)
 #-------------------------------------------------
 
+import PySide
+from PySide import QtCore, QtGui, QtSvg
+global QtGui,QtCore
+
 
 
 global fullRefresh, parentsView, childrensView, familyView, renderWidget
@@ -15,6 +19,9 @@ global w, refresh
 
 import os
 
+global __version__
+
+__version__ = "(version 0.3 2015-06-04)"
 
 class ConfigManager():
 
@@ -189,7 +196,7 @@ class MyWidget(QtGui.QWidget):
 		layout.setSpacing(0)
 		
 		self.mw.setLayout(layout)
-		self.setWindowTitle("Object Design Workflow Tree")
+		self.setWindowTitle("Object Design Workflow Tree " + __version__)
 		self.setStyleSheet("* {background-color:white;} *:focus { color:red;background-color:white;}")
 
 		self.layout=layout
