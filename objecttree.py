@@ -71,7 +71,7 @@ def TypeIcon(typeId='Part::Cut'):
 		if f2.exists():
 			return QtGui.QIcon(typeIcons[typeId])
 	FreeCAD.Console.PrintError("TypeIcon: " + typeId + " - no Icon found \n")
-	return QtGui.QIcon('/usr/lib/freecad/icons/freecad.png')
+	return QtGui.QIcon('icons:freecad.svg')
 
 
 def createTree(obj,n,mode):
@@ -225,7 +225,7 @@ class MyWidget(QtGui.QWidget):
 			QWidget2 {border:2px solid green;background-color:}")
 		
 		
-		self.butti2= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/camera-photo.png'),"Snapshot")
+		self.butti2= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/camera-photo.png'),"Snapshot")
 		self.hlayout.addWidget(self.butti2)
 		self.butti2.clicked.connect(renderWidget)
 		
@@ -324,19 +324,19 @@ class MyWidget(QtGui.QWidget):
 #			self.layout.addWidget(butte, oy+self.line, ox+3*row+2)
 		if row >0:
 			if mode ==1  :
-				butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/single.png'),"")
+				butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/single.png'),"")
 			elif mode ==0 :
-				butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/start.png'),"")
+				butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/start.png'),"")
 			elif mode == -1:
 				if ax== -1:
-					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/end2.png'),"")
+					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/end2.png'),"")
 				else:
-					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/end.png'),"")
+					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/end.png'),"")
 			else:
 				if ax== -1:
-					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/downl-l.png'),"" )
+					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/downl-l.png'),"" )
 				else:
-					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/downl-r.png'),"" )
+					butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/downl-r.png'),"" )
 			if ax== -1:
 				self.layout.addWidget(butte, oy+ay*self.line, ox+ax*3*row-1+2+1)
 			else:
@@ -350,12 +350,12 @@ class MyWidget(QtGui.QWidget):
 			g=lambda: self.expandTree(ot)
 			if ot['status'] == 'hide' and dir != '-x':
 				if len(ot['subs']):
-					buttx= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/icons/add.png'),"" )
+					buttx= QtGui.QPushButton(QtGui.QIcon('icons:add.svg'),"" )
 					self.layout.addWidget(buttx, oy+ay*self.line, ox+ax*3*row+2)
 					buttx.clicked.connect(g) 
 			if ot['status'] == 'hide' and dir == '-x':
 				if len(ot['subs']):
-					buttx= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/icons/add.png'),"" )
+					buttx= QtGui.QPushButton(QtGui.QIcon('icons:add.svg'),"" )
 					self.layout.addWidget(buttx, oy+ay*self.line, ox+ax*3*row+2-4)
 					#buttx.clicked.connect(g) 
 					buttx.clicked.connect(lc) 
@@ -393,7 +393,7 @@ def sayWidgetTree(w,ot,mode=0,dir='+x'):
 	for p in vlines.keys():
 		if vlines[p]:
 			if vlines[p]==1 and filled[w.line][3*p+2]<>1:
-				butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/down.png'),"" )
+				butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/down.png'),"" )
 	anz=len(ot['subs'])
 	startline=w.line
 	if ot['status']=='normal':
@@ -452,7 +452,7 @@ def fullRefresh(mode='parents'):
 	obs= Gui.Selection.getSelection()
 	if len(obs)<>1:
 			w.layout.setAlignment(QtCore.Qt.AlignCenter)
-			butte= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/freecad.png'),"Error: Select your object of interest!" )
+			butte= QtGui.QPushButton(QtGui.QIcon('icons:freecad.svg'),"Error: Select your object of interest!" )
 			butte.setObjectName("mainLabel")
 			w.layout.addWidget(butte, 1,1)
 			return
@@ -522,7 +522,7 @@ class searchWidget(QtGui.QWidget):
 		for k in self.res:
 			#if not self.config[k]['status'] == "ignore":
 			
-				item = QtGui.QListWidgetItem(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/master.png'),k.Label)
+				# item = QtGui.QListWidgetItem(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/master.png'),k.Label)
 				
 				try:
 					item= QtGui.QListWidgetItem(QtGui.QIcon(k.ViewObject.Proxy.getIcon()),k.Label) 
