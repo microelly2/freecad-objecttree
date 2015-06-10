@@ -12,7 +12,6 @@ from PySide import QtCore, QtGui, QtSvg
 global QtGui,QtCore
 
 
-
 global fullRefresh, parentsView, childrensView, familyView, renderWidget
 global doSomething,search, createTree, sayWidgetTree,cm,vlines,TypeIcon
 global w, refresh
@@ -20,8 +19,7 @@ global w, refresh
 import os
 
 global __version__
-
-__version__ = "(version 0.3 2015-06-04)"
+__version__ = "(version 0.4 2015-06-09)"
 
 class ConfigManager():
 
@@ -167,6 +165,8 @@ def createTree(obj,n,mode):
 	return tree
 
 def sayTree(ot):
+	'''	print output of the tree structure for testing'''
+	
 	ss="#"
 	for k in ot.keys():
 		if k=='subtyp': 
@@ -176,6 +176,287 @@ def sayTree(ot):
 #	print ss + name
 	for s in ot['subs']:
 			sayTree(s)
+
+#------------------------------------------
+
+
+import sys
+from PySide import QtCore, QtGui
+
+
+
+if False:
+	try:
+		import FreeCAD
+		FreeCAD.open(u"/home/thomas/freecad_buch/b142_otreee/m02_mouse_events_testcase.fcstd")
+		#FreeCAD.open(u"E:/freecadbuch_2/b142_otreee/m02_mouse_events_testcase.fcstd")
+		App.setActiveDocument("m02_mouse_events_testcase")
+		App.ActiveDocument=App.getDocument("m02_mouse_events_testcase")
+		Gui.ActiveDocument=Gui.getDocument("m02_mouse_events_testcase")
+		
+		App.ActiveDocument.Torus.ViewObject.Visibility=True
+		App.ActiveDocument.Sphere.ViewObject.Visibility=True
+		App.ActiveDocument.Cylinder.ViewObject.Visibility=True
+		FreeCADGui.Selection.clearSelection()
+		for s in [App.ActiveDocument.Box001, App.ActiveDocument.Sphere001,App.ActiveDocument.Cone001]:
+			FreeCADGui.Selection.addSelection(s)
+	except:
+		pass
+
+if False:
+	os=FreeCAD.ActiveDocument.Objects
+	for obj in os:
+		obj.ViewObject.Visibility=False
+	App.ActiveDocument.Torus.ViewObject.Visibility=True
+	App.ActiveDocument.Sphere.ViewObject.Visibility=True
+	App.ActiveDocument.Cylinder.ViewObject.Visibility=True
+	FreeCADGui.Selection.clearSelection()
+	for s in [App.ActiveDocument.Box001, App.ActiveDocument.Sphere001,App.ActiveDocument.Cone001]:
+		FreeCADGui.Selection.addSelection(s)
+
+global buff
+
+buff={}
+def initBuff():
+	
+	os=FreeCAD.ActiveDocument.Objects
+	for obj in os:
+		v=obj.ViewObject.Visibility
+		t=obj.ViewObject.Transparency
+		buff[obj]=[v,t]
+		say("!" +obj.Label + ":"+str(obj.ViewObject.Transparency) + "-- "+ str(obj.ViewObject.Visibility))
+		v=obj.ViewObject.Visibility=False
+
+initBuff()
+
+global context
+
+context={}
+os=FreeCADGui.Selection.getSelection()
+for obj in os:
+	context[obj]=True
+
+global lastObj
+lastObj =[FreeCAD.ActiveDocument.ActiveObject,FreeCAD.ActiveDocument.ActiveObject.ViewObject.ShapeColor]
+
+class MyBut(QtGui.QPushButton):
+	def __init__(self,icon,name):
+		QtGui.QPushButton.__init__(self,icon,name)
+		#QtGui.QPushButton.__init__(self,name)
+		# self.obj=FreeCAD.ActiveDocument.Box
+
+	def enterEvent(self,ev):
+		global lastObj
+		import random
+		self.obvisi=self.obj.ViewObject.Visibility
+		self.color=self.obj.ViewObject.ShapeColor
+		self.obj.ViewObject.ShapeColor=(1.0,0.5,1.0)
+		self.obj.ViewObject.Transparency=0
+		self.obj.ViewObject.DisplayMode = "Flat Lines"
+		self.obj.ViewObject.Visibility=True
+		say("mouse enter A " + self.obj.Label)
+		try:
+			lo=lastObj[0]
+			loc=lastObj[1]
+			lo.ViewObject.ShapeColor=(random.random(),random.random(),random.random())
+			lastObj=[self.obj,self.color]
+			#FreeCADGui.SendMsgToActiveView("ViewFit")
+			FreeCAD.ActiveDocument.recompute()
+			say(lo.ViewObject.ShapeColor)
+		except:
+			sayexc("hk2")
+
+	def leaveEvent(self,ev):
+		say("mouse Leave A " + self.obj.Label) 
+		try:
+			self.obj.ViewObject.Visibility=False
+			self.obj.ViewObject.ShapeColor=self.color
+			self.obj.ViewObject.Transparency=90
+			self.obj.ViewObject.DisplayMode = "Shaded"
+			if context.has_key(self.obj) and context[self.obj]:
+				pass
+			self.obj.ViewObject.Visibility=True
+		except:
+			sayexc("hu44")
+		FreeCAD.ActiveDocument.recompute()
+
+	def mousePressEvent(self, ev):
+		#FreeCAD.Console.PrintMessage("k mouse press")
+		say("mouse Press A " + self.obj.Label) 
+		#FreeCAD.Console.PrintMessage("Label clicked  " +  ot['obj'].Label + "\n")
+		FreeCADGui.Selection.clearSelection()
+		## FreeCADGui.Selection.addSelection(self.ot['obj'])
+		FreeCADGui.Selection.addSelection(self.obj)
+		fullRefresh('family')
+
+	def eventFilter1(self,ev):
+		FreeCAD.Console.PrintMessage("kgdfgfdk")
+		say(" c gfgdfgfd nter event")
+		say(ev)
+
+
+
+global hideall
+def hideall():
+	os=FreeCAD.ActiveDocument.Objects
+	for obj in os:
+		FreeCAD.Console.PrintMessage("!# ")
+		obj.ViewObject.Transparency=90
+		self.obj.ViewObject.DisplayMode = "Shaded"
+		obj.ViewObject.Visibility=False
+
+
+global showall2
+def showall2():
+	os=FreeCAD.ActiveDocument.Objects
+	say("showall run")
+	# say(os)
+	for obj in os:
+		say("show all")
+		obj.ViewObject.Visibility=buff[obj][0]
+		obj.ViewObject.Transparency=buff[obj][1]
+		obj.ViewObject.DisplayMode = "Flat Lines"
+#		obj.ViewObject.Visibility=buff[obj][0]
+		say("!" +obj.Label + ":"+str(obj.ViewObject.Transparency) + "-- "+ str(obj.ViewObject.Visibility))
+	#FreeCADGui.SendMsgToActiveView("ViewFit")
+	
+
+global MyWindow2
+class MyWindow2(QtGui.QWidget) :
+	def __init__(self):
+		QtGui.QWidget.__init__(self)
+		self.leaved=True
+		layout2 = QtGui.QHBoxLayout()
+		f=QtGui.QWidget()
+		f=QtGui.QFrame()
+		layout2.addWidget(f)
+		self.f=f
+		layout = QtGui.QHBoxLayout()
+		self.framelayout=layout
+		f.setObjectName("context")
+		FreeCAD.f=f
+		#self.f.setStyleSheet("{ background-color: yellow;padding:5px;margin:5px;border:2px solid red;}")
+		self.f.setStyleSheet("{ background-color: yellow;padding:0px;margin:2px;border:2px solid red;}")
+
+		f.setLayout(layout)
+		# hier die vorselektierten objekte rein
+		
+		for obj in context.keys():
+			if context[obj]:
+				b=MyBut(TypeIcon(obj.TypeId),obj.Label)
+				b.obj=obj
+				layout.addWidget(b)
+				lc=lambda: self.labelClick2(obj)
+				b.clicked.connect(lc) 
+				
+#		b=MyBut(QtGui.QIcon('/usr/lib/freecad/Mod/mylib/icons/mars.png'),"Box")
+#		b.obj=FreeCAD.ActiveDocument.Box
+#		b2=MyBut(QtGui.QIcon('/usr/lib/freecad/Mod/mylib/icons/sun.png'),"cone")
+#		b2.obj=FreeCAD.ActiveDocument.Cone
+#		b3=MyBut(None,"Cut ")
+#		b3.obj=FreeCAD.ActiveDocument.Cut001
+#		b4=MyBut(None,"common ")
+#		b4.obj=FreeCAD.ActiveDocument.Common
+#		
+#		layout.addWidget(b)
+#		layout.addWidget(b2)
+#		layout.addWidget(b3)
+#		layout.addWidget(b4)
+
+		self.setStyleSheet("\
+				QWidget#context { background-color: orange;margin:0px;padding:0px;}\
+				QPushButton { background-color: yellow;margin 30px;}\
+				")
+
+
+		self.setLayout(layout2)
+		self.setMouseTracking(True)
+		#f.setMouseTracking(True)
+
+	def labelClick2(self,obj):
+		FreeCAD.Console.PrintMessage("Label clicked 2 " +  obj.Label + "\n")
+		FreeCADGui.Selection.clearSelection()
+		FreeCADGui.Selection.addSelection(obj)
+		fullRefresh('family')
+
+
+
+
+
+	def enterEvent(self,ev):
+		FreeCAD.Console.PrintMessage("++ ")
+		hideall()
+
+	def leaveEvent(self,ev):
+		FreeCAD.Console.PrintMessage("#2# ")
+		self.leaved=not self.leaved
+		if self.leaved:
+			pass
+		#say("showall2")
+		try: 
+			#showall2()
+			pass
+		except:
+			sayexc("huhu")
+		for obj in context.keys():
+			say("show all context -- " + obj.Label)
+			obj.ViewObject.Visibility=True
+			obj.ViewObject.Transparency=80
+			obj.ViewObject.DisplayMode = "Shaded"
+
+		say("showall2 done")
+
+
+	def setMouseTracking(self, flag):
+		def recursive_set(parent):
+			for child in parent.findChildren(QtCore.QObject):
+				try:
+					child.setMouseTracking(flag)
+				except:
+					pass
+				recursive_set(child)
+		QtGui.QWidget.setMouseTracking(self, flag)
+		recursive_set(self)
+
+	def mouseMoveEvent(self, event):
+		FreeCAD.Console.PrintMessage("--- ")
+##		print 'mouseMoveEvent: x=%d, y=%d' % (event.x(), event.y())
+
+
+
+
+
+
+#----------------------
+global MyBut
+class MyButA(QtGui.QPushButton):
+	
+	def __init__(self,icon=None,label=''):
+		#QtGui.QPushButton.__init__(self,icon,label)
+		QtGui.QPushButton.__init__(self,label)
+		self.obj=None
+		self.active=False
+		# self.active=True
+
+	def enterEvent(self,ev):
+		if not self.active:
+			return
+		self.obvisi=self.obj.ViewObject.Visibility
+		self.color=self.obj.ViewObject.ShapeColor
+		self.obj.ViewObject.ShapeColor=(1.0,0.0,1.0)
+		self.obj.ViewObject.Visibility=True
+		self.sel=FreeCADGui.Selection.getSelection()
+		FreeCADGui.Selection.clearSelection()
+
+	def leaveEvent(self,ev):
+		if not self.active:
+			return
+		self.obj.ViewObject.Visibility=False
+		self.obj.ViewObject.ShapeColor=self.color
+		self.obj.ViewObject.Visibility=self.obvisi
+		for s in self.sel:
+			FreeCADGui.Selection.addSelection(s)
+#--------------------------
 
 class MyWidget(QtGui.QWidget):
 	def __init__(self, master,*args):
@@ -242,13 +523,23 @@ class MyWidget(QtGui.QWidget):
 		#self.butti2= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/icons/help.png'),"Search")
 		#self.butti2= QtGui.QPushButton(QtGui.QIcon('/home/thomas/website_local/html/dokuwiki/data/media/story/ik.svg/view-select.svg'),"Search")
 		self.butti2= QtGui.QPushButton(QtGui.QIcon("icons:"+ 'view-zoom-all.svg'),"Search")
-		self.butti2.clicked.connect(search)
+		self.butti2.clicked.connect(self.close)
 		self.hlayout.addWidget(self.butti2)
 		butti= QtGui.QPushButton(QtGui.QIcon('icons:Part_Measure_Step_Done.svg'),"Close")
 		butti.clicked.connect(self.hide) 
+		butti.clicked.connect(showall2) 
 		self.hlayout.addWidget(butti)
 		self.mlayout.addWidget(self.hw)
 		self.mlayout.addWidget(self.mw)
+		
+		window2 = MyWindow2()
+		self.framelayout=layout
+		self.mlayout.addWidget(window2)
+# window.setGeometry(500, 300, 300, 400)
+#window.show()
+
+		
+		
 		self.setLayout(mlayout)
 		self.mw.setStyleSheet("QListWidget,QPushButton {border:none;text-align:left;}\
 				QPushButton {border:0px solid red;text-align:left;}\
@@ -257,6 +548,26 @@ class MyWidget(QtGui.QWidget):
 			QWidget2 {border:2px solid green;background-color:transparent}")
 		# self.butti2.installEventFilter(self)
 		FreeCAD.Console.PrintMessage('myinint done installed ')
+
+		self.setMouseTracking(True)
+		#f.setMouseTracking(True)
+
+	def close(self):
+		showall2()
+		self.hide()
+
+	def enterEvent(self,ev):
+		FreeCAD.Console.PrintMessage("++ ")
+		hideall()
+
+	def leaveEvent(self,ev):
+		FreeCAD.Console.PrintMessage("#2# ")
+		self.leaved=not self.leaved
+		if self.leaved:
+			pass
+		showall2()
+
+
 
 
 
@@ -288,11 +599,22 @@ class MyWidget(QtGui.QWidget):
 		if dir == '-x':
 			ax=-1
 		
-		pushButt = QtGui.QPushButton()
+#		pushButt = QtGui.QPushButton()
+#		try:
+#			butti= QtGui.QPushButton(QtGui.QIcon(obj.ViewObject.Proxy.getIcon()),"") 
+#		except:
+#			butti= QtGui.QPushButton(TypeIcon(obj.TypeId),"")
+
+
+		pushButt = MyBut(None,"")
+		pushButt.obj=obj
+		pushButt.ot=ot
 		try:
-			butti= QtGui.QPushButton(QtGui.QIcon(obj.ViewObject.Proxy.getIcon()),"") 
+			butti= MyBut(QtGui.QIcon(obj.ViewObject.Proxy.getIcon()),"") 
 		except:
-			butti= QtGui.QPushButton(TypeIcon(obj.TypeId),"")
+			butti= MyBut(TypeIcon(obj.TypeId),"")
+		butti.obj=obj
+
 		tt="-: "+ str(oy+ay*self.line)
 		tt=''
 		if row==0:
@@ -457,21 +779,23 @@ def fullRefresh(mode='parents'):
 	#obs= [App.ActiveDocument.Cut001]
 	#obs= [App.ActiveDocument.Fusion]
 	obs= Gui.Selection.getSelection()
-	if len(obs)<>1:
-			w.layout.setAlignment(QtCore.Qt.AlignCenter)
-			butte= QtGui.QPushButton(QtGui.QIcon('icons:freecad.svg'),"Error: Select your object of interest!" )
-			butte.setObjectName("mainLabel")
-			w.layout.addWidget(butte, 1,1)
-			return
+	if len(obs)<1:
+			obs=[FreeCAD.ActiveDocument.ActiveObject]
+			#w.layout.setAlignment(QtCore.Qt.AlignCenter)
+			#butte= QtGui.QPushButton(QtGui.QIcon('icons:freecad.svg'),"Error: Select your object of interest!" )
+			#butte.setObjectName("mainLabel")
+			#w.layout.addWidget(butte, 1,1)
+			#return
 		
-	obs=obs[0:1]
+	#obs=obs[0:1]
 
 	otlist=[]
-	for ob1 in obs:
+	#for ob1 in obs:
 		
 		#otlist.append(ot)
 		# import pprint;pprint.pprint(ot)
-
+	ob1=obs[len(obs)-1]
+	if True:
 		if mode== 'children':
 			ot=createTree(ob1,0,mode)
 			dir = '-x'
@@ -493,6 +817,12 @@ def fullRefresh(mode='parents'):
 			sayWidgetTree(w,ot2,0,'-x')
 	w.ot=ot
 	w.hide();w.show()
+	
+	for obj in context.keys():
+		say("show all context -- " + obj.Label)
+		obj.ViewObject.Visibility=True
+		obj.ViewObject.Transparency=30
+
 
 
 
@@ -653,27 +983,16 @@ import PySide
 
 def doSomething():
 	# display the properties dock window in foreground 
-	FreeCAD.Console.PrintMessage("do something  ---------1--!!--------\n")
 	mw=FreeCAD.Gui.getMainWindow()
-	FreeCAD.Console.PrintMessage("do something  ----------2-!!--------\n")
 	cn=mw.children()
-	FreeCAD.Console.PrintMessage("do something  --------3b---!!--------\n")
 	for c in cn:
-		FreeCAD.Console.PrintMessage("do something  --------3a---!!--------\n")
-		FreeCAD.Console.PrintMessage(c.__class__)
+		#FreeCAD.Console.PrintMessage(c.__class__)
 		if c.__class__ == QtGui.QDockWidget:
-			FreeCAD.Console.PrintMessage("nix 1\n")
-			FreeCAD.Console.PrintMessage(c.windowTitle())
-			FreeCAD.Console.PrintMessage("nix 2\n")
-			print c, c.objectName(), c.windowTitle()
-			FreeCAD.Console.PrintMessage("do something  --------4---!!--------\n")
+			#FreeCAD.Console.PrintMessage(c.windowTitle())
+			#print c, c.objectName(), c.windowTitle()
 			if str(c.objectName())=="Property view":
-				FreeCAD.Console.PrintMessage("do something  --------5---!!--------\n")
 				c.show()
 				c.raise_()
-				FreeCAD.Console.PrintMessage("do something  --------6---!!--------\n")
-		else:
-			FreeCAD.Console.PrintMessage("nix\n")
 
 # main 
 if 1 or False:
