@@ -5,9 +5,16 @@ A plugin for freecad to browse the object hierarchy
 
 #Linux Installation Instructions
 
--copy the icons from the icons folder into /usr/lib/freecad/Mod/plugins/icons
--download the objecttree.py into your macro folder
--execute this python file as a macro or paste it into the python console 
+a)
+
+ - install the plugin loader https://github.com/microelly2/freecad-pluginloader
+ - from inside the pluginloader install the package ObjTree
+
+b)
+
+ - copy the icons from the icons folder into /usr/lib/freecad/Mod/plugins/objecttree/icons
+ - download the objecttree.py into your macro folder
+ - execute this python file as a macro or paste it into the python console 
 
 
 #Usage
