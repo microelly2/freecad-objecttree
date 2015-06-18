@@ -20,7 +20,7 @@ global w, refresh
 import os
 
 global __version__
-__version__ = "(version 0.9 2015-06-18)"
+__version__ = "(version 0.10 2015-06-18)"
 
 from configmanager import ConfigManager
 
@@ -501,7 +501,7 @@ class MyWidget(QtGui.QWidget):
 			QWidget2 {border:2px solid green;background-color:}")
 		
 		
-		self.butti2= QtGui.QPushButton(QtGui.QIcon('/usr/lib/freecad/Mod/plugins/objecttree/icons/camera-photo.png'),"Snapshot")
+		self.butti2= QtGui.QPushButton(QtGui.QIcon(AppHomePath+'/Mod/plugins/objecttree/icons/camera-photo.png'),"Snapshot")
 		self.hlayout.addWidget(self.butti2)
 		self.butti2.clicked.connect(renderWidget)
 		
@@ -969,9 +969,44 @@ def renderWidget():
 	child=w.mw
 	image = QtGui.QPixmap(child.size())
 	child.render(image)
-	image.save( '/tmp/snapshot.png', 'PNG')
-	import os
-	os.system("eog /tmp/snapshot.png &")
+	imagename=cm.get('imageName','c:/t2.jpg')
+	imageformat=cm.get('imageFormat','JPG')
+	image.save( 'c:/t.jpg', 'JPG')
+	
+	#displaymode=cm.get('displayMode','extern')
+	displaymode=cm.get('displayMode','intern')
+	displayCmd=cm.get('displayCmd','eog')
+	
+	displaymode='intern'
+	displayCmd="c:/i_view32.exe"
+	
+	if displaymode=='intern':
+		import os, tempfile
+		d=tempfile.mktemp()
+		os.makedirs(d)
+		imagename = d + '/tree.' + imageformat
+		FreeCAD.Console.PrintMessage("tempfile !" + imagename +'!\n')
+		
+	image.save(imagename,imageformat)
+	
+	if displaymode == 'extern':
+		image.save( '/tmp/snapshot.png', 'PNG')
+		import os
+		#os.system("eog /tmp/snapshot.png &")
+		import subprocess
+		DETACHED_PROCESS = 0x00000008
+
+		pid = subprocess.Popen([displayCmd,"c:\\t3.jpg"],creationflags=DETACHED_PROCESS).pid
+		#subprocess.call(["c:/i_view32.exe","c:\\t3.jpg"])
+		
+		
+	else:
+		import ImageGui
+		ImageGui.open(imagename)
+		FreeCAD.Console.PrintMessage("Image saved to:" +str(imagename))
+	
+ 
+	
 
 import PySide
 
